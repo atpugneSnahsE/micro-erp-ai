@@ -22,6 +22,11 @@ def get_db():
     finally:
         db.close()
 
+@router.get("/sales")
+def get_sales(
+    db: Session = Depends(get_db)
+):
+    return db.query(Sale).all()
 
 @router.post("/sales")
 def create_sale(
