@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from app.api.routes.product import router as product_router
+from app.api.routes.customer import (
+    router as customer_router
+)
 
 app = FastAPI(
     title="Micro ERP AI",
@@ -7,6 +10,7 @@ app = FastAPI(
 )
 
 app.include_router(product_router)
+app.include_router(customer_router)
 
 
 @app.get("/")
