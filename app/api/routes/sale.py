@@ -10,7 +10,13 @@ from app.database import SessionLocal
 from app.models.sale import Sale
 from app.models.sale_item import SaleItem
 from app.models.product import Product
+from app.models.user import User
+
 from app.schemas.sale import SaleCreate
+
+from app.services.dependencies import (
+    get_current_user
+)
 
 router = APIRouter()
 
@@ -22,15 +28,19 @@ def get_db():
     finally:
         db.close()
 
+
 @router.get("/sales")
 def get_sales(
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     return db.query(Sale).all()
 
+
 @router.post("/sales")
 def create_sale(
     sale: SaleCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
@@ -90,3 +100,23 @@ def create_sale(
         "total_amount": total_amount,
         "message": "Sale completed"
     }
+
+
+@router.get("/sales/{sale_id}")
+def get_sale(
+    sale_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    sale = db.query(Sale).filter(
+        Sale.id == sale_id
+    ).first()
+
+    if not sale:
+        raise HTTPException(
+            status_code=404,
+            detail="Sale not found"
+        )
+
+    return sale

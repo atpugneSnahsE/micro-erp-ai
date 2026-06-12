@@ -1,9 +1,27 @@
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException
+)
+
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models.customer import Customer
-from app.schemas.customer import CustomerCreate
+from app.models.user import User
+
+from app.schemas.customer import (
+    CustomerCreate,
+    CustomerUpdate
+)
+
+from app.services.dependencies import (
+    get_current_user
+)
+
+from app.services.permissions import (
+    require_admin
+)
 
 router = APIRouter()
 
@@ -18,6 +36,7 @@ def get_db():
 
 @router.get("/customers")
 def get_customers(
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     return db.query(Customer).all()
@@ -26,6 +45,7 @@ def get_customers(
 @router.post("/customers")
 def create_customer(
     customer: CustomerCreate,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
@@ -42,3 +62,79 @@ def create_customer(
     db.refresh(new_customer)
 
     return new_customer
+
+
+@router.get("/customers/{customer_id}")
+def get_customer(
+    customer_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    customer = db.query(Customer).filter(
+        Customer.id == customer_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="Customer not found"
+        )
+
+    return customer
+
+
+@router.put("/customers/{customer_id}")
+def update_customer(
+    customer_id: int,
+    customer_data: CustomerUpdate,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+
+    customer = db.query(Customer).filter(
+        Customer.id == customer_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="Customer not found"
+        )
+
+    update_data = customer_data.dict(
+        exclude_unset=True
+    )
+
+    for key, value in update_data.items():
+        setattr(customer, key, value)
+
+    db.commit()
+    db.refresh(customer)
+
+    return customer
+
+
+@router.delete("/customers/{customer_id}")
+def delete_customer(
+    customer_id: int,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+
+    customer = db.query(Customer).filter(
+        Customer.id == customer_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="Customer not found"
+        )
+
+    db.delete(customer)
+    db.commit()
+
+    return {
+        "message": "Customer deleted"
+    }

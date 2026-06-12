@@ -9,6 +9,12 @@ from app.api.routes.sale import (
 from app.api.routes.dashboard import (
     router as dashboard_router
 )
+from app.api.routes.auth import (
+    router as auth_router
+)
+from app.api.routes.report import (
+    router as report_router
+)
 
 app = FastAPI(
     title="Micro ERP AI",
@@ -43,6 +49,18 @@ app.include_router(
     dashboard_router,
     prefix="/api/v1",
     tags=["Dashboard"]
+)
+
+app.include_router(
+    auth_router,
+    prefix="/api/v1/auth",
+    tags=["Authentication"]
+)
+
+app.include_router(
+    report_router,
+    prefix="/api/v1",
+    tags=["Reports"]
 )
 
 @app.get("/")
