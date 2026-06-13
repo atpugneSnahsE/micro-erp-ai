@@ -21,6 +21,10 @@ app = FastAPI(
     version="0.1.0"
 )
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 app.include_router(
     product_router,
     prefix="/api/v1",
@@ -67,11 +71,4 @@ app.include_router(
 def home():
     return {
         "message": "Micro ERP API is running"
-    }
-
-
-@app.get("/health")
-def health():
-    return {
-        "status": "healthy"
     }
