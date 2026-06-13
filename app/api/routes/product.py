@@ -6,6 +6,7 @@ from fastapi import (
 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
 
 from app.database import SessionLocal
 from app.models.product import Product
@@ -43,6 +44,23 @@ def low_stock_products(
     return db.query(Product).filter(
         Product.quantity <= Product.reorder_level
     ).all()
+
+@router.get("/products/search")
+def search_products(
+    q: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    products = db.query(Product).filter(
+        or_(
+            Product.name.ilike(f"%{q}%"),
+            Product.sku.ilike(f"%{q}%"),
+            Product.category.ilike(f"%{q}%")
+        )
+    ).all()
+
+    return products
 
 @router.get("/products/{product_id}")
 def get_product(
