@@ -50,12 +50,6 @@ app.include_router(
 )
 
 app.include_router(
-    dashboard_router,
-    prefix="/api/v1",
-    tags=["Dashboard"]
-)
-
-app.include_router(
     auth_router,
     prefix="/api/v1/auth",
     tags=["Authentication"]
@@ -72,4 +66,4 @@ def home():
     return {
         "message": "Micro ERP API is running"
     }
-    }
+
