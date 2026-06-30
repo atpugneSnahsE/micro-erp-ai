@@ -4,14 +4,13 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func
-from sqlalchemy import desc
-from app.models.sale_item import SaleItem
+from sqlalchemy import func, desc
 from datetime import datetime
 
 from app.database import SessionLocal
 from app.models.sale import Sale
 from app.models.product import Product
+from app.models.sale_item import SaleItem
 from app.models.user import User
 
 from app.services.dependencies import (
@@ -56,6 +55,7 @@ def low_stock(
 
     return products
 
+
 @router.get("/reports/dashboard-summary")
 def dashboard_summary(
     current_user: User = Depends(get_current_user),
@@ -80,6 +80,7 @@ def dashboard_summary(
         "revenue": revenue or 0
     }
 
+
 @router.get("/reports/today-sales")
 def today_sales(
     current_user: User = Depends(get_current_user),
@@ -103,6 +104,7 @@ def today_sales(
             2
         )
     }
+
 
 @router.get("/reports/top-products")
 def top_products(
