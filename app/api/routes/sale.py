@@ -14,6 +14,7 @@ from app.models.user import User
 
 from app.schemas.sale import SaleCreate
 
+from app.services.audit import log_action
 from app.services.dependencies import (
     get_current_user
 )
@@ -94,6 +95,8 @@ def create_sale(
 
     db.commit()
     db.refresh(new_sale)
+
+    log_action(db, current_user.id, "completed", "sales", new_sale.id)
 
     return {
         "sale_id": new_sale.id,

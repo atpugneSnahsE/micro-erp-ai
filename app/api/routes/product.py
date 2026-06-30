@@ -20,6 +20,7 @@ from app.services.dependencies import (
 from app.services.permissions import (
     require_admin
 )
+from app.services.audit import log_action
 from app.schemas.product import (
     ProductCreate,
     ProductUpdate
@@ -110,6 +111,8 @@ def create_product(
         db.commit()
         db.refresh(new_product)
 
+        log_action(db, admin.id, "created", "products", new_product.id)
+
     except IntegrityError:
         db.rollback()
 
@@ -148,6 +151,8 @@ def update_product(
     db.commit()
     db.refresh(product)
 
+    log_action(db, admin.id, "updated", "products", product_id)
+
     return product
 
 @router.delete("/products/{product_id}")
@@ -169,6 +174,8 @@ def delete_product(
 
     db.delete(product)
     db.commit()
+
+    log_action(db, admin.id, "deleted", "products", product_id)
 
     return {
         "message": "Product deleted"
