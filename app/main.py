@@ -71,4 +71,8 @@ app.include_router(
 def home():
     return {
         "message": "Micro ERP API is running"
+<<<<<<< HEAD
     }
+=======
+    }
+>>>>>>> origin/main
