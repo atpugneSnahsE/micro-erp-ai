@@ -22,6 +22,7 @@ from app.services.dependencies import (
 from app.services.permissions import (
     require_admin
 )
+from app.services.audit import log_action
 
 router = APIRouter()
 
@@ -60,6 +61,8 @@ def create_customer(
     db.add(new_customer)
     db.commit()
     db.refresh(new_customer)
+
+    log_action(db, current_user.id, "created", "customers", new_customer.id)
 
     return new_customer
 
@@ -112,6 +115,8 @@ def update_customer(
     db.commit()
     db.refresh(customer)
 
+    log_action(db, admin.id, "updated", "customers", customer_id)
+
     return customer
 
 
@@ -134,6 +139,8 @@ def delete_customer(
 
     db.delete(customer)
     db.commit()
+
+    log_action(db, admin.id, "deleted", "customers", customer_id)
 
     return {
         "message": "Customer deleted"

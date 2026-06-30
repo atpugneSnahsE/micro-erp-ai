@@ -15,6 +15,12 @@ from app.api.routes.auth import (
 from app.api.routes.report import (
     router as report_router
 )
+from app.api.routes.backup import (
+    router as backup_router
+)
+from app.api.routes.crm import (
+    router as crm_router
+)
 
 app = FastAPI(
     title="Micro ERP AI",
@@ -61,9 +67,20 @@ app.include_router(
     tags=["Reports"]
 )
 
+app.include_router(
+    backup_router,
+    prefix="/api/v1",
+    tags=["Admin"]
+)
+
+app.include_router(
+    crm_router,
+    prefix="/api/v1",
+    tags=["CRM"]
+)
+
 @app.get("/")
 def home():
     return {
         "message": "Micro ERP API is running"
     }
-
